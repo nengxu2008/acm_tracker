@@ -97,7 +97,10 @@ class tracker:
 
 
 
-def tracking():
+def tracking(sequence_folders, output_dir):
+    """Track every sequence folder and write its CSV and video outputs."""
+    os.makedirs(output_dir, exist_ok=True)
+
     for seq_folder in sequence_folders:
         if not os.path.isdir(seq_folder):
             continue
@@ -151,7 +154,7 @@ def tracking():
         # Initialize file and write header before processing frames
         with open(csv_file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow(["frame", "pd_box_size"])
+            writer.writerow(["frame"])
 
             # Loop through the remaining frames in the sequence
             for frame_idx, frame_path in enumerate(frame_paths[1:], start=1):
@@ -198,8 +201,8 @@ def tracking():
                 # Display image frame
                 cv2.imshow("Tracking", frame)
 
-                # Write each frame's metrics immediately
-                writer.writerow([frame_idx, box_size(bbox)])
+                # Record each processed frame without calculating an unused box area.
+                writer.writerow([frame_idx])
                 video_writer.write(frame)
 
                 # Delay 30ms between frames (~33 FPS playback); exit on 'q'
