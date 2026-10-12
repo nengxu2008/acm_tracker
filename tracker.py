@@ -169,7 +169,6 @@ def tracking():
                     corners = xywhr2xyxyxyxy(np.array([bbox], dtype=np.float32))[0]
                     draw_corners = np.rint(corners).astype(np.int32)
                     cv2.polylines(frame, [draw_corners], True, (0, 255, 0), 2)
-                    cv2.rectangle(frame, (x_gt, y_gt), (x_gt + w_gt, y_gt + h_gt), (0, 0, 255), 2)
 
                 else:
                     # Render error message if tracking loses target
@@ -182,6 +181,13 @@ def tracking():
                         (0, 0, 255),
                         2,
                     )
+
+                # Draw the ground-truth box that belongs to this frame, when available.
+                if frame_idx < len(gt_lines):
+                    x_gt, y_gt, w_gt, h_gt = gt_lines[frame_idx]
+                    top_left = (round(x_gt), round(y_gt))
+                    bottom_right = (round(x_gt + w_gt), round(y_gt + h_gt))
+                    cv2.rectangle(frame, top_left, bottom_right, (0, 0, 255), 2)
 
                 # Overlay live latency and current FPS on the frame
                 text = f"Frame: {frame_idx}"
