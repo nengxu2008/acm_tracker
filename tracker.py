@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os, glob, csv
+from ultralytics.utils.ops import xyxyxyxy2xywhr
 
 def generate_rois(frame, obb, max_move=100, padding=10):
     """
@@ -59,16 +60,38 @@ class tracker:
         self.bbox = init_bbox
 
     def update(self, next_frame):
+        """Select the highest-confidence OBB from the two search crops."""
         self.rois, transforms = generate_rois(next_frame, self.bbox)
+        results = detector(self.rois)
 
-        self.success, result = detector(self.rois)
+        best_conf = -1.0
+        best_corners = None
 
-        crop_corners = result.obb.xyxyxyxy[j].cpu().numpy()
+        # i identifies the crop; j identifies an object within that crop.
+        for i, result in enumerate(results):
+            if result.obb is None:
+                continue
 
-        self.bbox = cv2.transform(
-            crop_corners[None].astype(np.float32),
-            cv2.invertAffineTransform(transforms[i]),)[0]
-        
+            for j, confidence in enumerate(result.obb.conf):
+                confidence = float(confidence)
+                if confidence <= best_conf:
+                    continue
+
+                crop_corners = result.obb.xyxyxyxy[j].cpu().numpy()
+                best_corners = cv2.transform(
+                    crop_corners[None].astype(np.float32),
+                    cv2.invertAffineTransform(transforms[i]),
+                )[0]
+                best_conf = confidence
+
+        if best_corners is None:
+            self.success = False
+            return self.success, self.bbox
+
+        # Store five OBB values, not the four corner points.
+        frame_obb = xyxyxyxy2xywhr(best_corners[None])[0]
+        self.bbox = tuple(float(v) for v in frame_obb)
+        self.success = True
         return self.success, self.bbox
 
 
