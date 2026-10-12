@@ -222,7 +222,7 @@ def tracking(sequence_folders, output_dir):
             video_writer.release()
 
         cv2.destroyAllWindows()
-
+        raise
 
 if __name__ == "__main__":
     sequence_folders = sorted(
