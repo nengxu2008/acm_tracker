@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
-import os, glob, csv
+import os, glob, csv, time
 from ultralytics.utils.ops import xyxyxyxy2xywhr, xywhr2xyxyxyxy
+from ablation import center_error, iou
+from formatting import *
 
 def generate_rois(frame, obb, max_move=100, padding=10):
     """
@@ -161,11 +163,29 @@ def tracking(sequence_folders, output_dir):
         # Create our tracker with the first frame and initial OBB.
         mytracker = tracker(first_frame, bbox_init)
 
+        latencies_pv = []
+        center_error_pv = []
+        iou_pv = []
+        successful_frames = 0
 
         # Initialize file and write header before processing frames
         with open(csv_file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow(["frame"])
+            writer.writerow(
+                [
+                    "frame",
+                    "success",
+                    "latency_ms",
+                    "tracker_fps",
+                    "oriented_iou",
+                    "center_error_px",
+                    "cx",
+                    "cy",
+                    "width",
+                    "height",
+                    "theta",
+                ]
+            )
 
             # Loop through the remaining frames in the sequence
             for frame_idx, frame_path in enumerate(frame_paths[1:], start=1):
@@ -173,16 +193,33 @@ def tracking(sequence_folders, output_dir):
 
                 if frame is None:
                     continue
-                
+
                 # Update tracker position for the current frame
                 # bbox is (cx, cy, width, height, theta), with theta in radians.
+                bbox_gt = xyxyxyxy2xywhr(gt_corners[frame_idx : frame_idx + 1])[0]
+                start_time = time.perf_counter()
                 success, bbox = mytracker.update(frame)
+                end_time = time.perf_counter()
+
+                # calculate latency in milliseconds
+                latency_ms = (end_time - start_time) * 1000
+                latencies_pv.append(latency_ms)
+
+                # Set default values for failed tracking frames
+                iou_pf = 0.0
+                center_error_pf = float("nan")
 
                 if success:
+                    successful_frames += 1
+
                     # Preserve floating-point geometry until rounding for drawing.
                     corners = xywhr2xyxyxyxy(np.array([bbox], dtype=np.float32))[0]
                     draw_corners = np.rint(corners).astype(np.int32)
                     cv2.polylines(frame, [draw_corners], True, (0, 255, 0), 2)
+
+                    # calculate iou and center_error
+                    center_error_pf = center_error(bbox, bbox_gt)
+                    iou_pf = iou(bbox, bbox_gt)
 
                 else:
                     # Render error message if tracking loses target
@@ -196,22 +233,45 @@ def tracking(sequence_folders, output_dir):
                         2,
                     )
 
+                # Failed frames contribute zero overlap and undefined center error.
+                iou_pv.append(iou_pf)
+                center_error_pv.append(center_error_pf)
+
                 # Draw the ground-truth box that belongs to this frame, when available.
                 if frame_idx < len(gt_corners):
                     draw_gt_corners = np.rint(gt_corners[frame_idx]).astype(np.int32)
                     cv2.polylines(frame, [draw_gt_corners], True, (0, 0, 255), 2)
 
                 # Overlay live latency and current FPS on the frame
-                text = f"Frame: {frame_idx}"
-                cv2.putText(
-                    frame, text, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2
+                fps = 1000 / latency_ms if latency_ms > 0 else 0
+                center_error_text = (
+                    f"{center_error_pf:.1f}px"
+                    if np.isfinite(center_error_pf)
+                    else "N/A"
                 )
+
+                draw_stats(frame, frame_idx, fps, iou_pf, center_error_text)
 
                 # Display image frame
                 cv2.imshow("Tracking", frame)
 
-                # Record each processed frame without calculating an unused box area.
-                writer.writerow([frame_idx])
+                # Record the same per-frame statistics shown on the video.
+                bbox_values = (
+                    [float(value) for value in bbox]
+                    if success
+                    else [""] * 5
+                )
+                writer.writerow(
+                    [
+                        frame_idx,
+                        success,
+                        latency_ms,
+                        fps,
+                        iou_pf,
+                        "" if not np.isfinite(center_error_pf) else center_error_pf,
+                        *bbox_values,
+                    ]
+                )
                 video_writer.write(frame)
 
                 # Delay 30ms between frames (~33 FPS playback); exit on 'q'
@@ -222,7 +282,38 @@ def tracking(sequence_folders, output_dir):
             video_writer.release()
 
         cv2.destroyAllWindows()
-        raise
+
+        # Compute overall video stats
+        if not latencies_pv:
+            return None
+
+        processed_frames = len(latencies_pv)
+        avg_latency = float(np.mean(latencies_pv))
+        avg_fps = 1000 / avg_latency if avg_latency > 0 else 0.0
+        avg_iou = float(np.mean(iou_pv))
+        tracked_rate = successful_frames / processed_frames
+        valid_center_errors = [
+            value for value in center_error_pv if np.isfinite(value)
+        ]
+        avg_center_error = (
+            float(np.mean(valid_center_errors))
+            if valid_center_errors
+            else float("nan")
+        )
+
+        summary = {
+            "sequence": folder_name,
+            "processed_frames": processed_frames,
+            "tracked_rate": tracked_rate,
+            "avg_latency_ms": avg_latency,
+            "avg_tracker_fps": avg_fps,
+            "avg_oriented_iou": avg_iou,
+            "avg_center_error_tracked_px": avg_center_error,
+        }
+        print("Tracking summary:", summary)
+
+        # This experiment intentionally runs only the first selected sequence.
+        return summary
 
 if __name__ == "__main__":
     sequence_folders = sorted(

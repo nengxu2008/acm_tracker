@@ -53,6 +53,11 @@ def tracking(sequence_folders, output_dir):
             )
 
             for frame_idx, result in enumerate(results):
+                # Frame 0 initializes the target sequence; evaluate from frame 1,
+                # matching tracker.py.
+                if frame_idx == 0:
+                    continue
+
                 annotated_frame = result.plot()
                 if video_writer is None:
                     height, width = annotated_frame.shape[:2]
