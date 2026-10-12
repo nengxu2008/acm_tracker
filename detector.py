@@ -4,23 +4,26 @@ from ultralytics import YOLO
 model = YOLO("yolo26n-obb.pt")
 
 
-def detector(image):
-    results = model(image)  # predict on an image
+def detector(images):
+    results = model(images)  # predict on an image
 
+    for image in images:
     # Access the results
-    for result in results:
-        xywhr = result.obb.xywhr  # center-x, center-y, width, height, angle (radians)
-        corners = result.obb.xyxyxyxy  # polygon format with 4-points
-        names = [result.names[cls.item()] for cls in result.obb.cls.int()]  # class name of each box
-        confs = result.obb.conf  # confidence score of each box
+        confs = []
+        for result in results:
+            xywhr = result.obb.xywhr  # center-x, center-y, width, height, angle (radians)
+            corners = result.obb.xyxyxyxy  # polygon format with 4-points
+            names = [result.names[cls.item()] for cls in result.obb.cls.int()]  # class name of each box
+            confs = result.obb.conf  # confidence score of each box
 
+        if confs > confs:
+            corners.append(corners)
         """
         # make sure the program works even without detectable object
         try: corners_with_dir = calculate_dir(corners)
             continue
         """
-
-    print(corners)
+    return corners
 
 """
 def calculate_dir(corners):

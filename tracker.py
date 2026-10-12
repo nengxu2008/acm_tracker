@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+import os, glob, csv
 
 def generate_rois(frame, obb, max_move=100, padding=10):
     """
@@ -21,9 +21,9 @@ def generate_rois(frame, obb, max_move=100, padding=10):
     thickness = max(1, int(np.ceil(max(w, h) + 2 * padding)))
 
     rois = []
+    transforms = []
 
     for angle in [theta, theta + np.pi / 2]:
-
         # Rotate the image so the search axis becomes horizontal
         M = cv2.getRotationMatrix2D(
             (cx, cy),
@@ -45,19 +45,30 @@ def generate_rois(frame, obb, max_move=100, padding=10):
         )
 
         rois.append(crop)
+        transforms.append(M)
+    return rois, transforms
 
-    return rois
 
 
 
+
+from detector import detector
 class tracker:
     def __init__(self, first_frame, init_bbox):
         self.first_frame = first_frame
         self.bbox = init_bbox
 
     def update(self, next_frame):
-        self.rois = generate_rois(next_frame, bbox)
-        self.success, self.bbox = detector(self.rois)
+        self.rois, transforms = generate_rois(next_frame, self.bbox)
+
+        self.success, result = detector(self.rois)
+
+        crop_corners = result.obb.xyxyxyxy[j].cpu().numpy()
+
+        self.bbox = cv2.transform(
+            crop_corners[None].astype(np.float32),
+            cv2.invertAffineTransform(transforms[i]),)[0]
+        
         return self.success, self.bbox
 
 
@@ -84,12 +95,14 @@ def tracking():
         # Parse initial ground truth bounding box (line 1 of groundtruth.txt)
         with open(gt_path, "r") as f:
                 gt_lines = [
-                    tuple(int(float(v)) for v in line.strip().split(","))
+                    tuple(float(v) for v in line.strip().split(","))
                     for line in f
                     if line.strip()
                 ]
 
-        bbox_init = gt_lines[0]
+        # Initialize bbox
+        x, y, w, h = gt_lines[0]
+        bbox_init = (x + w / 2, y + h / 2, w, h, 0.0)
 
         # Read the first frame to initialize ROI selection
         first_frame = cv2.imread(frame_paths[0])
@@ -126,11 +139,11 @@ def tracking():
                     continue
                 
                 # Update tracker position for the current frame
-                success, bbox = tracker.update(frame) # tuple returned as (x, y, width, height)
+                success, bbox = mytracker.update(frame) # tuple returned as (x, y, width, height)
 
                 if success:
                     # Draw bounding box
-                    x, y, w, h = [int(v) for v in bbox]
+                    x, y, w, h, theta = [int(v) for v in bbox]
                     cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2) # cv2.rectangle requires two opposing corner coordinates
                     cv2.rectangle(frame, (x_gt, y_gt), (x_gt + w_gt, y_gt + h_gt), (0, 0, 255), 2)
 
