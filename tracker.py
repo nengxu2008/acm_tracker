@@ -95,8 +95,6 @@ class tracker:
         return self.success, self.bbox
 
 
-
-
 def tracking(sequence_folders, output_dir):
     """Track every sequence folder and write its CSV and video outputs."""
     os.makedirs(output_dir, exist_ok=True)
@@ -213,6 +211,11 @@ def tracking(sequence_folders, output_dir):
             video_writer.release()
 
         cv2.destroyAllWindows()
+    raise
 
 
-
+if __name__ == "__main__":
+    sequence_folders = sorted(
+        glob.glob("/Users/piefacemac/Experiment Data/GOT-10k/val/GOT-10k_Val_*")
+    )
+    tracking(sequence_folders, "/Users/piefacemac/MyProjects/acm_tracker")
