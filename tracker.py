@@ -108,6 +108,10 @@ class tracker:
         return self.success, self.bbox
 
 
+
+
+
+
 def tracking(sequence_folders, output_dir):
     """Track every sequence folder and write its CSV and video outputs."""
     os.makedirs(output_dir, exist_ok=True)
