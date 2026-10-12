@@ -14,14 +14,15 @@ def detector(image):
         names = [result.names[cls.item()] for cls in result.obb.cls.int()]  # class name of each box
         confs = result.obb.conf  # confidence score of each box
 
+        """
         # make sure the program works even without detectable object
         try: corners_with_dir = calculate_dir(corners)
             continue
+        """
 
     print(corners)
-    print(corners_with_dir)
 
-
+"""
 def calculate_dir(corners):
     # calculate the directions of search
     corners = corners.unsqueeze(-1)
@@ -31,6 +32,7 @@ def calculate_dir(corners):
         dir = right_mid - left_mid
         corners[4][i] = dir
     return corners
+"""
 
 detector("/Users/piefacemac/Library/CloudStorage/OneDrive-Personal/图片/Camera Roll/2022/12/20221210_064936173_iOS.jpg")
 
