@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 
 # Load a model
-model = YOLO("yolo26n-obb.pt")
+model = YOLO("yolo26x-obb.pt")
 
 
 def detector(images):
