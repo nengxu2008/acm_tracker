@@ -5,7 +5,7 @@ from ultralytics.utils.ops import xyxyxyxy2xywhr, xywhr2xyxyxyxy
 from ablation import center_error, iou
 from formatting import *
 
-def generate_rois(frame, obb, max_move=100, padding=10):
+def generate_rois(frame, obb, max_move=20, padding=2):
     """
     Args:
         frame: Original image (H, W, 3)
@@ -122,9 +122,9 @@ def tracking(sequence_folders, output_dir):
 
         # create file name
         folder_name = os.path.basename(seq_folder)
-        csv_filename = f"tracker_log_{folder_name}.csv"
+        csv_filename = f"tracker_log_{folder_name}3.csv"
         csv_file_path = os.path.join(output_dir, csv_filename)
-        vid_filename = f"tracker_log_{folder_name}.mp4"
+        vid_filename = f"tracker_log_{folder_name}3.mp4"
         vid_file_path = os.path.join(output_dir, vid_filename)
 
         # Get ground-truth bounding box
