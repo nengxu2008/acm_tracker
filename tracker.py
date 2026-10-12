@@ -125,19 +125,21 @@ def tracking(sequence_folders, output_dir):
         gt_path = os.path.join(seq_folder, "groundtruth.txt")
 
         # Get sorted frames for THIS specific video sequence
-        frame_paths = sorted(glob.glob(os.path.join(seq_folder, "*.jpg")))
+        frame_paths = sorted(glob.glob(os.path.join(seq_folder, "img/*.jpg")))
 
-        # Parse initial ground truth bounding box (line 1 of groundtruth.txt)
+        # OOTB stores four oriented corner points per frame.
         with open(gt_path, "r") as f:
-                gt_lines = [
-                    tuple(float(v) for v in line.strip().split(","))
+            gt_corners = np.array(
+                [
+                    tuple(float(v) for v in line.split())
                     for line in f
                     if line.strip()
-                ]
+                ],
+                dtype=np.float32,
+            ).reshape(-1, 4, 2)
 
-        # Initialize bbox
-        x, y, w, h = gt_lines[0]
-        bbox_init = (x + w / 2, y + h / 2, w, h, 0.0)
+        # Convert only the first annotation into the tracker's five-value OBB state.
+        bbox_init = tuple(float(v) for v in xyxyxyxy2xywhr(gt_corners[:1])[0])
 
         # Read the first frame to initialize ROI selection
         first_frame = cv2.imread(frame_paths[0])
@@ -195,11 +197,9 @@ def tracking(sequence_folders, output_dir):
                     )
 
                 # Draw the ground-truth box that belongs to this frame, when available.
-                if frame_idx < len(gt_lines):
-                    x_gt, y_gt, w_gt, h_gt = gt_lines[frame_idx]
-                    top_left = (round(x_gt), round(y_gt))
-                    bottom_right = (round(x_gt + w_gt), round(y_gt + h_gt))
-                    cv2.rectangle(frame, top_left, bottom_right, (0, 0, 255), 2)
+                if frame_idx < len(gt_corners):
+                    draw_gt_corners = np.rint(gt_corners[frame_idx]).astype(np.int32)
+                    cv2.polylines(frame, [draw_gt_corners], True, (0, 0, 255), 2)
 
                 # Overlay live latency and current FPS on the frame
                 text = f"Frame: {frame_idx}"
@@ -222,11 +222,10 @@ def tracking(sequence_folders, output_dir):
             video_writer.release()
 
         cv2.destroyAllWindows()
-        raise
 
 
 if __name__ == "__main__":
     sequence_folders = sorted(
-        glob.glob("/Users/piefacemac/Experiment Data/GOT-10k/val/GOT-10k_Val_*")
+        glob.glob("/Users/piefacemac/Experiment Data/OOTB dataset/ship_*")
     )
     tracking(sequence_folders, "/Users/piefacemac/MyProjects/acm_tracker")
