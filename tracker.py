@@ -55,17 +55,20 @@ def generate_rois(frame, obb, max_move=100, padding=10):
 
 from detector import detector
 class tracker:
-    def __init__(self, first_frame, init_bbox):
+    def __init__(self, first_frame, init_bbox, max_move=100):
         self.first_frame = first_frame
         self.bbox = init_bbox
+        self.max_move = max_move
 
     def update(self, next_frame):
         """Select the highest-confidence OBB from the two search crops."""
-        self.rois, transforms = generate_rois(next_frame, self.bbox)
+        self.rois, transforms = generate_rois(
+            next_frame, self.bbox, max_move=self.max_move
+        )
         results = detector(self.rois)
 
         best_conf = -1.0
-        best_corners = None
+        best_bbox = None
 
         # i identifies the crop; j identifies an object within that crop.
         for i, result in enumerate(results):
@@ -78,19 +81,27 @@ class tracker:
                     continue
 
                 crop_corners = result.obb.xyxyxyxy[j].cpu().numpy()
-                best_corners = cv2.transform(
+                frame_corners = cv2.transform(
                     crop_corners[None].astype(np.float32),
                     cv2.invertAffineTransform(transforms[i]),
                 )[0]
+                candidate_bbox = xyxyxyxy2xywhr(frame_corners[None])[0]
+
+                center_change = np.abs(candidate_bbox[:2] - np.asarray(self.bbox[:2]))
+                size_ratio = candidate_bbox[2:4] / np.asarray(self.bbox[2:4])
+                if np.any(center_change > self.max_move):
+                    continue
+                if np.any(size_ratio < 0.5) or np.any(size_ratio > 2.0):
+                    continue
+
+                best_bbox = candidate_bbox
                 best_conf = confidence
 
-        if best_corners is None:
+        if best_bbox is None:
             self.success = False
             return self.success, self.bbox
 
-        # Store five OBB values, not the four corner points.
-        frame_obb = xyxyxyxy2xywhr(best_corners[None])[0]
-        self.bbox = tuple(float(v) for v in frame_obb)
+        self.bbox = tuple(float(v) for v in best_bbox)
         self.success = True
         return self.success, self.bbox
 
