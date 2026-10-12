@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import os, glob, csv
-from ultralytics.utils.ops import xyxyxyxy2xywhr
+from ultralytics.utils.ops import xyxyxyxy2xywhr, xywhr2xyxyxyxy
 
 def generate_rois(frame, obb, max_move=100, padding=10):
     """
@@ -144,9 +144,8 @@ def tracking():
             vid_file_path, fourcc, fps, (width, height)
         )
 
-        # Create and initialize CSRT tracker
-        mytracker = tracker.init(first_frame, bbox_init)
-                # expects the bounding box coordinates as integers
+        # Create our tracker with the first frame and initial OBB.
+        mytracker = tracker(first_frame, bbox_init)
 
 
         # Initialize file and write header before processing frames
@@ -162,12 +161,14 @@ def tracking():
                     continue
                 
                 # Update tracker position for the current frame
-                success, bbox = mytracker.update(frame) # tuple returned as (x, y, width, height)
+                # bbox is (cx, cy, width, height, theta), with theta in radians.
+                success, bbox = mytracker.update(frame)
 
                 if success:
-                    # Draw bounding box
-                    x, y, w, h, theta = [int(v) for v in bbox]
-                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2) # cv2.rectangle requires two opposing corner coordinates
+                    # Preserve floating-point geometry until rounding for drawing.
+                    corners = xywhr2xyxyxyxy(np.array([bbox], dtype=np.float32))[0]
+                    draw_corners = np.rint(corners).astype(np.int32)
+                    cv2.polylines(frame, [draw_corners], True, (0, 255, 0), 2)
                     cv2.rectangle(frame, (x_gt, y_gt), (x_gt + w_gt, y_gt + h_gt), (0, 0, 255), 2)
 
                 else:
