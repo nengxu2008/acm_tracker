@@ -19,25 +19,23 @@ class bytetrack_baseline:
     def __init__(self, first_frame, init_bbox, conf=0.1, min_init_iou=0.1):
         self.bbox = init_bbox
         self.conf = conf
+        self.min_init_iou = min_init_iou
         self.target_id = None
 
         # Fresh ByteTrack state for this independent sequence.
         detector.predictor = None
 
         # Frame 0 initializes ByteTrack (not timed or scored, as in tracker.py).
-        # ByteTrack follows many objects, so lock onto the track ID whose box
-        # best overlaps the ground-truth box on this first frame.
+        # ByteTrack follows many objects, so lock onto the confirmed track ID
+        # whose box best overlaps the initial target. Confirmation may take a
+        # few frames, so update() keeps trying until an ID becomes available.
         boxes, ids = self._track(first_frame)
-        if len(boxes) > 0:
-            overlaps = [iou(box, init_bbox) for box in boxes]
-            best = int(np.argmax(overlaps))
-            if overlaps[best] >= min_init_iou:
-                self.target_id = int(ids[best])
+        self._initialize_target(boxes, ids)
 
         if self.target_id is None:
             print(
-                "Warning: no ByteTrack track matched the initial box; "
-                "every frame will count as a failure."
+                "ByteTrack has not confirmed the initial target yet; "
+                "target locking will continue on later frames."
             )
 
     def _track(self, frame):
@@ -51,16 +49,39 @@ class bytetrack_baseline:
         )[0]
 
         obb = result.obb
-        if obb is None or obb.id is None:
+        if obb is None:
             return np.empty((0, 5), dtype=np.float32), np.empty((0,), dtype=int)
-        return obb.xywhr.cpu().numpy(), obb.id.int().cpu().numpy()
+
+        boxes = obb.xywhr.cpu().numpy()
+        ids = (
+            obb.id.int().cpu().numpy()
+            if obb.id is not None
+            else np.full(len(boxes), -1, dtype=int)
+        )
+        return boxes, ids
+
+    def _initialize_target(self, boxes, ids):
+        """Lock onto the confirmed track that overlaps the initial target box."""
+        confirmed = np.flatnonzero(ids >= 0)
+        if len(confirmed) == 0:
+            return False
+
+        overlaps = np.array([iou(boxes[index], self.bbox) for index in confirmed])
+        best = int(np.argmax(overlaps))
+        if overlaps[best] < self.min_init_iou:
+            return False
+
+        box_index = int(confirmed[best])
+        self.target_id = int(ids[box_index])
+        self.bbox = tuple(float(value) for value in boxes[box_index])
+        return True
 
     def update(self, next_frame):
         """Return (success, bbox) for the locked-on track ID."""
         boxes, ids = self._track(next_frame)
 
         if self.target_id is None:
-            self.success = False
+            self.success = self._initialize_target(boxes, ids)
             return self.success, self.bbox
 
         matches = np.flatnonzero(ids == self.target_id)
