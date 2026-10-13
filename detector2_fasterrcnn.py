@@ -2,20 +2,13 @@ from torchvision.models.detection import (
     FasterRCNN_ResNet50_FPN_V2_Weights,
     fasterrcnn_resnet50_fpn_v2,
 )
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 import torch
 
 def build_model(finetune: bool) -> torch.nn.Module:
-    """Load COCO Faster R-CNN; optionally replace its head with person/background."""
-    # model = fasterrcnn_resnet50_fpn(weights=FasterRCNN_ResNet50_FPN_Weights.DEFAULT)
+    """Load COCO Faster R-CNN."""
     model = fasterrcnn_resnet50_fpn_v2(
         weights=FasterRCNN_ResNet50_FPN_V2_Weights.DEFAULT,
     )
-    # Retain low-confidence predictions for a proper precision-recall curve.
-    model.roi_heads.score_thresh = 0.0
-    if finetune:
-        in_features = model.roi_heads.box_predictor.cls_score.in_features
-        model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes=2)
     return model
 
 model = build_model(finetune=False)

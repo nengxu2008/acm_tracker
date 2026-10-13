@@ -4,12 +4,14 @@ import os, glob, csv, time
 from ultralytics.utils.ops import xyxyxyxy2xywhr, xywhr2xyxyxyxy
 from ablation import center_error, iou
 from formatting import *
+from detector import detector
+
 
 def generate_rois(frame, obb, max_move=20, padding=2):
     """
     Args:
         frame: Original image (H, W, 3)
-        obb: [cx, cy, w, h, theta], theta in radians
+        obb: [cx, cy, w, h, theta] of bbox
         max_move: Maximum center displacement along either axis
         padding: Extra space around the object
 
@@ -54,8 +56,6 @@ def generate_rois(frame, obb, max_move=20, padding=2):
 
 
 
-
-from detector import detector
 class tracker:
     def __init__(self, first_frame, init_bbox, max_move=100):
         self.first_frame = first_frame
@@ -120,20 +120,21 @@ def tracking(sequence_folders, output_dir):
         if not os.path.isdir(seq_folder):
             continue
 
-        # create file name
-        folder_name = os.path.basename(seq_folder)
-        csv_filename = f"tracker_log_{folder_name}3.csv"
-        csv_file_path = os.path.join(output_dir, csv_filename)
-        vid_filename = f"tracker_log_{folder_name}3.mp4"
-        vid_file_path = os.path.join(output_dir, vid_filename)
 
-        # Get ground-truth bounding box
+        # Create output files, load data
+        folder_name = os.path.basename(seq_folder)
+        csv_filename = f"mytracker_{folder_name}.csv"
+        csv_file_path = os.path.join(output_dir, csv_filename)
+        vid_filename = f"mytracker_{folder_name}.mp4"
+        vid_file_path = os.path.join(output_dir, vid_filename)
+        frame_paths = sorted(glob.glob(os.path.join(seq_folder, "img/*.jpg")))   # Get sorted frames for THIS specific video sequence
+
+
+        # Intialize tracker
+            # Get ground-truth bounding box
         gt_path = os.path.join(seq_folder, "groundtruth.txt")
 
-        # Get sorted frames for THIS specific video sequence
-        frame_paths = sorted(glob.glob(os.path.join(seq_folder, "img/*.jpg")))
-
-        # OOTB stores four oriented corner points per frame.
+            # OOTB stores four oriented corner points per frame.
         with open(gt_path, "r") as f:
             gt_corners = np.array(
                 [
@@ -144,35 +145,33 @@ def tracking(sequence_folders, output_dir):
                 dtype=np.float32,
             ).reshape(-1, 4, 2)
 
-        # Convert only the first annotation into the tracker's five-value OBB state.
+            # Convert only the first annotation into the tracker's five-value OBB state.
         bbox_init = tuple(float(v) for v in xyxyxyxy2xywhr(gt_corners[:1])[0])
 
-        # Read the first frame to initialize ROI selection
+            # Read the first frame to initialize ROI selection
         first_frame = cv2.imread(frame_paths[0])
         if first_frame is None:
             print("Failed to load the first image frame.")
             continue
 
-        # Save Video
-        #   GET FRAME DIMENSIONS (Width, Height)
+            # Create mytracker with the first frame and initial OBB.
+        mytracker = tracker(first_frame, bbox_init)
+
+
+
+        # Save annotated video and csv as artifact
         height, width, _ = first_frame.shape
-        #   INITIALIZE VIDEO WRITER
-        #       Use 'mp4v' for .mp4 output files
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         fps = 5.0  # Output video playback speed in FPS
         video_writer = cv2.VideoWriter(
             vid_file_path, fourcc, fps, (width, height)
         )
 
-        # Create our tracker with the first frame and initial OBB.
-        mytracker = tracker(first_frame, bbox_init)
-
         latencies_pv = []
         center_error_pv = []
         iou_pv = []
         successful_frames = 0
 
-        # Initialize file and write header before processing frames
         with open(csv_file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(
@@ -191,7 +190,9 @@ def tracking(sequence_folders, output_dir):
                 ]
             )
 
-            # Loop through the remaining frames in the sequence
+
+
+            # Track through frames in one video sequence, using opencv pipeline
             for frame_idx, frame_path in enumerate(frame_paths[1:], start=1):
                 frame = cv2.imread(frame_path)
 
@@ -199,13 +200,12 @@ def tracking(sequence_folders, output_dir):
                     continue
 
                 # Update tracker position for the current frame
-                # bbox is (cx, cy, width, height, theta), with theta in radians.
                 bbox_gt = xyxyxyxy2xywhr(gt_corners[frame_idx : frame_idx + 1])[0]
                 start_time = time.perf_counter()
                 success, bbox = mytracker.update(frame)
                 end_time = time.perf_counter()
 
-                # calculate latency in milliseconds
+                # Calculate latency in milliseconds
                 latency_ms = (end_time - start_time) * 1000
                 latencies_pv.append(latency_ms)
 
@@ -216,12 +216,11 @@ def tracking(sequence_folders, output_dir):
                 if success:
                     successful_frames += 1
 
-                    # Preserve floating-point geometry until rounding for drawing.
                     corners = xywhr2xyxyxyxy(np.array([bbox], dtype=np.float32))[0]
                     draw_corners = np.rint(corners).astype(np.int32)
                     cv2.polylines(frame, [draw_corners], True, (0, 255, 0), 2)
 
-                    # calculate iou and center_error
+                    # Calculate iou and center_error
                     center_error_pf = center_error(bbox, bbox_gt)
                     iou_pf = iou(bbox, bbox_gt)
 
@@ -241,7 +240,7 @@ def tracking(sequence_folders, output_dir):
                 iou_pv.append(iou_pf)
                 center_error_pv.append(center_error_pf)
 
-                # Draw the ground-truth box that belongs to this frame, when available.
+                # Draw the ground-truth box that belongs to this frame
                 if frame_idx < len(gt_corners):
                     draw_gt_corners = np.rint(gt_corners[frame_idx]).astype(np.int32)
                     cv2.polylines(frame, [draw_gt_corners], True, (0, 0, 255), 2)
@@ -278,14 +277,12 @@ def tracking(sequence_folders, output_dir):
                 )
                 video_writer.write(frame)
 
-                # Delay 30ms between frames (~33 FPS playback); exit on 'q'
-                #  1. it gives OpenCV time to render the updated image onto your screen
-                #  2. it pauses execution briefly to check for keyboard input.
                 if cv2.waitKey(100) & 0xFF == ord("q"):
                     break
             video_writer.release()
 
         cv2.destroyAllWindows()
+
 
         # Compute overall video stats
         if not latencies_pv:
@@ -316,8 +313,9 @@ def tracking(sequence_folders, output_dir):
         }
         print("Tracking summary:", summary)
 
-        # This experiment intentionally runs only the first selected sequence.
         return summary
+
+
 
 if __name__ == "__main__":
     sequence_folders = sorted(

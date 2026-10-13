@@ -10,10 +10,8 @@ from ultralytics.utils.ops import xyxyxyxy2xywhr, xywhr2xyxyxyxy
 
 class bytetrack_baseline:
     """YOLO OBB + ByteTrack wrapped as a single-object tracker.
-
-    Same interface as `tracker` in tracker.py: construct with
-    (first_frame, init_bbox), then call update(frame) -> (success, bbox),
-    where bbox = (cx, cy, w, h, theta) with theta in radians.
+    
+        Same logic as in the mytracker.py
     """
 
     def __init__(self, first_frame, init_bbox, conf=0.1, min_init_iou=0.1):
@@ -25,10 +23,7 @@ class bytetrack_baseline:
         # Fresh ByteTrack state for this independent sequence.
         detector.predictor = None
 
-        # Frame 0 initializes ByteTrack (not timed or scored, as in tracker.py).
-        # ByteTrack follows many objects, so lock onto the confirmed track ID
-        # whose box best overlaps the initial target. Confirmation may take a
-        # few frames, so update() keeps trying until an ID becomes available.
+        # Frame 0 initializes ByteTrack
         boxes, ids = self._track(first_frame)
         self._initialize_target(boxes, ids)
 
@@ -104,7 +99,7 @@ def tracking(sequence_folders, output_dir):
         if not os.path.isdir(seq_folder):
             continue
 
-        # create file name
+        # Create file name
         folder_name = os.path.basename(seq_folder)
         csv_filename = f"baseline_bytetrack_{folder_name}.csv"
         csv_file_path = os.path.join(output_dir, csv_filename)
@@ -205,7 +200,7 @@ def tracking(sequence_folders, output_dir):
                     draw_corners = np.rint(corners).astype(np.int32)
                     cv2.polylines(frame, [draw_corners], True, (0, 255, 0), 2)
 
-                    # calculate iou and center_error
+                    # Calculate iou and center_error
                     center_error_pf = center_error(bbox, bbox_gt)
                     iou_pf = iou(bbox, bbox_gt)
 
@@ -262,9 +257,6 @@ def tracking(sequence_folders, output_dir):
                 )
                 video_writer.write(frame)
 
-                # Delay 100ms between frames; exit on 'q'
-                #  1. it gives OpenCV time to render the updated image onto your screen
-                #  2. it pauses execution briefly to check for keyboard input.
                 if cv2.waitKey(100) & 0xFF == ord("q"):
                     break
             video_writer.release()
@@ -300,7 +292,6 @@ def tracking(sequence_folders, output_dir):
         }
         print("Tracking summary:", summary)
 
-        # This experiment intentionally runs only the first selected sequence.
         return summary
 
 
