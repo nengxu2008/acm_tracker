@@ -1,0 +1,17 @@
+# Python 3.12+; versions match the project's current local environment.
+# Install with: python -m pip install -r requirements.txt
+
+# YOLO OBB detection and ByteTrack baseline
+ultralytics==8.4.175
+lap==0.5.13
+
+# Image processing and numerical operations
+numpy==2.5.4
+opencv-python==5.0.0.93
+
+# PyTorch and the alternative Faster R-CNN detector
+torch==2.14.1
+torchvision==0.29.1
+
+# Ablation figures
+matplotlib==3.11.2
