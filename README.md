@@ -36,7 +36,7 @@ The tracker failed to track the object.
 
 ## Tracker Display
 
-| My ROI tracker: saved larger-strip run | Full-frame YOLO26x-OBB + ByteTrack |
+| My ROI tracker | Full-frame YOLO26x-OBB + ByteTrack Baseline|
 | --- | --- |
 | ![Animated excerpt of the ROI tracker with ground-truth and predicted boxes](figures/mytracker_ship_1_preview.gif) | ![Animated excerpt of the ByteTrack baseline on the same frames](figures/baseline_ship_1_preview.gif) |
 | [Full video](records/mytracker_ship_1.mp4) · [Per-frame CSV](records/mytracker_ship_1.csv) | [Full video](records/baseline_bytetrack_ship_1.mp4) · [Per-frame CSV](records/baseline_bytetrack_ship_1.csv) |
