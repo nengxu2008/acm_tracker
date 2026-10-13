@@ -4,7 +4,6 @@ import os, glob, csv, time
 from ultralytics.utils.ops import xyxyxyxy2xywhr, xywhr2xyxyxyxy
 from ablation import center_error, iou
 from formatting import *
-from detector import detector
 
 
 def generate_rois(frame, obb, max_move=20, padding=2):
@@ -55,7 +54,7 @@ def generate_rois(frame, obb, max_move=20, padding=2):
 
 
 
-
+from detector import detector
 class tracker:
     def __init__(self, first_frame, init_bbox, max_move=100):
         self.first_frame = first_frame
