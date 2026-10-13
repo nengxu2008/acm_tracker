@@ -1,6 +1,7 @@
 """Plot the ship_1 search-area ablation reported in the experiment table."""
 
 import os
+import csv
 from pathlib import Path
 
 os.environ.setdefault("MPLCONFIGDIR", "/tmp/acm_tracker_matplotlib")
@@ -42,7 +43,7 @@ roi_variants = [
         "label": "p=5, m=50",
         "padding": 5,
         "max_move": 50,
-        "oriented_iou": 0.4354,
+        "oriented_iou": 0.4355,
         "fps": 2.64,
     },
 ]
@@ -59,6 +60,19 @@ baseline = {
     "oriented_iou": 0.4349,
     "fps": 1.45,
 }
+
+
+def update_logged_metrics():
+    """Recompute available runs; smaller variants retain workbook summaries."""
+    root = Path(__file__).resolve().parent.parent
+    for item, filename in [
+        (roi_variants[2], "mytracker_ship_1.csv"),
+        (baseline, "baseline_bytetrack_ship_1.csv"),
+    ]:
+        with (root / "records" / filename).open(newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        item["fps"] = 1000 / (sum(float(row["latency_ms"]) for row in rows) / len(rows))
+        item["oriented_iou"] = sum(float(row["oriented_iou"]) for row in rows) / len(rows)
 
 
 def format_area(area):
@@ -119,7 +133,7 @@ def plot_panel(ax, metric, ylabel, panel_title, ylim):
     ax.set_xticklabels([format_area(area) for area in all_areas])
     ax.xaxis.set_minor_formatter(NullFormatter())
     ax.set_xlim(min(all_areas) / 1.25, max(all_areas) * 1.2)
-    ax.set_xlabel("Unique searched area, pixels (% of frame)")
+    ax.set_xlabel("Nominal strip-union area, pixels (% of frame; log scale)")
     ax.set_ylabel(ylabel)
     ax.set_title(panel_title, loc="left", fontweight="bold")
     ax.set_ylim(*ylim)
@@ -129,6 +143,7 @@ def plot_panel(ax, metric, ylabel, panel_title, ylim):
 
 
 def main():
+    update_logged_metrics()
     plt.rcParams.update(
         {
             "font.family": "DejaVu Sans",
@@ -141,14 +156,14 @@ def main():
     plot_panel(
         axes[0],
         "oriented_iou",
-        "Average oriented IoU",
-        "A  Search area vs overlap accuracy",
+        "Mean oriented IoU (zoomed axis)",
+        "A  Search area vs overlap",
         (0.35, 0.45),
     )
     plot_panel(
         axes[1],
         "fps",
-        "Average FPS",
+        "Tracker FPS (inverse mean latency)",
         "B  Search area vs throughput",
         (1.2, 3.6),
     )
@@ -172,15 +187,15 @@ def main():
     fig.text(
         0.5,
         0.015,
-        "My tracker uses two perpendicular ROI strips; overlap is counted once. "
-        "ByteTrack processes the complete 224×261 frame.",
+        "Area estimate: fixed 22 px target dimension; overlap counted once; no edge clipping.\n"
+        "Both crops process the overlap. Source frame: 224×261 px. One sequence; no repeated timings.",
         ha="center",
         fontsize=9,
         color="#555555",
     )
     fig.subplots_adjust(top=0.82, bottom=0.20, left=0.08, right=0.98, wspace=0.27)
 
-    output_dir = Path(__file__).resolve().parent / "figures"
+    output_dir = Path(__file__).resolve().parent
     output_dir.mkdir(exist_ok=True)
     fig.savefig(output_dir / "search_area_ablation.png", dpi=300, bbox_inches="tight")
     fig.savefig(output_dir / "search_area_ablation.pdf", bbox_inches="tight")

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="667.683527pt" height="298.456312pt" viewBox="0 0 667.683527 298.456312" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-10-12T18:35:28.084986</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 298.456312 
+L 667.683527 298.456312 
+L 667.683527 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 13.202526 236.165127 
+L 289.318737 236.165127 
+L 289.318737 50.086811 
+L 13.202526 50.086811 
+z
+" clip-path="url(#pdbc25bb93a)" style="fill: #f1f6fa; stroke: #b5c6d4; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 70.203805 186.224648 
+Q 151.262159 143.125157 232.320513 100.025665 
+" style="fill: none; stroke: #276fbf; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 75.121612 186.101458 
+L 70.203805 186.224648 
+L 73.055937 182.216488 
+" style="fill: none; stroke: #276fbf; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 227.402706 100.148855 
+L 232.320513 100.025665 
+L 229.468381 104.033825 
+" style="fill: none; stroke: #276fbf; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="text_1">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #25364a" x="151.260632" y="249.670811" transform="rotate(-0 151.260632 249.670811)">Green: previous OBB   •   Blue: orientation axis</text>
+   </g>
+   <g id="text_2">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #25364a" x="7.2" y="17.077969" transform="rotate(-0 7.2 17.077969)">1  Observe the target's orientation</text>
+   </g>
+   <g id="patch_4">
+    <path d="M 126.056314 166.044936 
+L 175.080539 139.978294 
+L 181.73515 126.92238 
+L 167.190096 125.138528 
+L 118.165871 151.205171 
+z
+" clip-path="url(#pdbc25bb93a)" style="fill: #25364a; stroke: #25364a; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 125.097165 170.633894 
+L 188.696159 136.817709 
+L 177.424098 115.618044 
+L 113.825104 149.434229 
+L 125.097165 170.633894 
+z
+" clip-path="url(#pdbc25bb93a)" style="fill: none; stroke: #209567; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_6">
+    <path d="M 378.36479 236.165127 
+L 654.481001 236.165127 
+L 654.481001 50.086811 
+L 378.36479 50.086811 
+z
+" clip-path="url(#pf840688d24)" style="fill: #f1f6fa; stroke: #b5c6d4; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_3">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #25364a" x="516.422896" y="249.670811" transform="rotate(-0 516.422896 249.670811)">Dashed: possible next boxes along either direction</text>
+   </g>
+   <g id="text_4">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #25364a" x="372.362264" y="17.077969" transform="rotate(-0 372.362264 17.077969)">2  Use it as a clue for where to look</text>
+   </g>
+   <g id="patch_7">
+    <path d="M 416.060603 210.086109 
+L 479.659597 176.269924 
+L 468.387536 155.07026 
+L 404.788542 188.886445 
+L 416.060603 210.086109 
+z
+" clip-path="url(#pf840688d24)" style="fill: none; stroke-dasharray: 6.29,2.72; stroke-dashoffset: 0; stroke: #276fbf; stroke-width: 1.7; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 564.458256 131.181678 
+L 628.05725 97.365493 
+L 616.785188 76.165828 
+L 553.186194 109.982013 
+L 564.458256 131.181678 
+z
+" clip-path="url(#pf840688d24)" style="fill: none; stroke-dasharray: 6.29,2.72; stroke-dashoffset: 0; stroke: #276fbf; stroke-width: 1.7; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 491.218578 166.044936 
+L 540.242803 139.978294 
+L 546.897414 126.92238 
+L 532.35236 125.138528 
+L 483.328135 151.205171 
+z
+" clip-path="url(#pf840688d24)" style="fill: #25364a; stroke: #25364a; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 490.25943 170.633894 
+L 553.858424 136.817709 
+L 542.586362 115.618044 
+L 478.987368 149.434229 
+L 490.25943 170.633894 
+z
+" clip-path="url(#pf840688d24)" style="fill: none; stroke: #209567; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+  </g>
+  <g id="text_5">
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #536579" x="333.841764" y="288.853969" transform="rotate(-0 333.841764 288.853969)">Illustration only. The box angle does not determine velocity or guarantee the next position.</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pdbc25bb93a">
+   <rect x="7.2" y="29.077969" width="288.121263" height="228.096"/>
+  </clipPath>
+  <clipPath id="pf840688d24">
+   <rect x="372.362264" y="29.077969" width="288.121263" height="228.096"/>
+  </clipPath>
+ </defs>
+</svg>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="658.95258pt" height="320.344312pt" viewBox="0 0 658.95258 320.344312" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-10-12T18:35:28.200962</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 320.344312 
+L 658.95258 320.344312 
+L 658.95258 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 13.020632 229.889758 
+L 280.769684 229.889758 
+L 280.769684 49.450179 
+L 13.020632 49.450179 
+z
+" clip-path="url(#p06ae362196)" style="fill: #f1f6fa; stroke: #b5c6d4; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 13.020632 229.889758 
+L 280.769684 229.889758 
+L 280.769684 49.450179 
+L 13.020632 49.450179 
+z
+" clip-path="url(#p06ae362196)" style="fill: #276fbf; opacity: 0.12; stroke: #276fbf; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #25364a" x="146.895158" y="242.986179" transform="rotate(-0 146.895158 242.986179)">Run the detector on the complete next frame</text>
+   </g>
+   <g id="text_2">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #25364a" x="7.2" y="17.077969" transform="rotate(-0 7.2 17.077969)">Full-frame detector search</text>
+   </g>
+   <g id="patch_4">
+    <path d="M 122.454608 161.894422 
+L 169.99325 136.617678 
+L 176.446206 123.957398 
+L 162.341911 122.227602 
+L 114.803269 147.504347 
+z
+" clip-path="url(#p06ae362196)" style="fill: #25364a; stroke: #25364a; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 121.524524 166.34432 
+L 183.196276 133.552868 
+L 172.265792 112.995617 
+L 110.59404 145.787069 
+L 121.524524 166.34432 
+z
+" clip-path="url(#p06ae362196)" style="fill: none; stroke: #209567; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_6">
+    <path d="M 378.182896 229.889758 
+L 645.931948 229.889758 
+L 645.931948 49.450179 
+L 378.182896 49.450179 
+z
+" clip-path="url(#p4d6600a3e0)" style="fill: #f1f6fa; stroke: #b5c6d4; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 445.215061 199.931706 
+L 599.39444 117.953076 
+L 578.899783 79.408231 
+L 424.720404 161.386861 
+z
+" clip-path="url(#p4d6600a3e0)" style="fill: #276fbf; opacity: 0.24; stroke: #276fbf; stroke-width: 1.4; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 533.774315 227.006987 
+L 572.31916 206.51233 
+L 490.340529 52.33295 
+L 451.795685 72.827608 
+z
+" clip-path="url(#p4d6600a3e0)" style="fill: #d88926; opacity: 0.24; stroke: #d88926; stroke-width: 1.4; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_3">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #25364a" x="512.057422" y="242.986179" transform="rotate(-0 512.057422 242.986179)">Blue: along the OBB   •   Orange: perpendicular</text>
+   </g>
+   <g id="text_4">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #25364a" x="372.362264" y="17.077969" transform="rotate(-0 372.362264 17.077969)">My search: two rotated ROI strips</text>
+   </g>
+   <g id="patch_9">
+    <path d="M 487.616872 161.894422 
+L 535.155514 136.617678 
+L 541.60847 123.957398 
+L 527.504175 122.227602 
+L 479.965533 147.504347 
+z
+" clip-path="url(#p4d6600a3e0)" style="fill: #25364a; stroke: #25364a; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 486.686788 166.34432 
+L 548.35854 133.552868 
+L 537.428056 112.995617 
+L 475.756304 145.787069 
+L 486.686788 166.34432 
+z
+" clip-path="url(#p4d6600a3e0)" style="fill: none; stroke: #209567; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+  </g>
+  <g id="text_5">
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #25364a" x="329.47629" y="291.733969" transform="rotate(-0 329.47629 291.733969)">Previous OBB → crop both strips from the next frame → detect → map corners back → select a box</text>
+  </g>
+  <g id="text_6">
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #536579" x="329.47629" y="310.741969" transform="rotate(-0 329.47629 310.741969)">Schematic, not to scale. Both strips are centered on the last box; their overlap is processed twice.</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p06ae362196">
+   <rect x="7.2" y="29.077969" width="279.390316" height="221.184"/>
+  </clipPath>
+  <clipPath id="p4d6600a3e0">
+   <rect x="372.362264" y="29.077969" width="279.390316" height="221.184"/>
+  </clipPath>
+ </defs>
+</svg>
